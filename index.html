@@ -4,6 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cabinet & File Management System</title>
+    <script>
+      // Redirect non-hash URLs to hash-based URLs
+      // This catches old QR codes and direct links like /cabinet/xyz or /file/xyz
+      (function() {
+        var path = window.location.pathname;
+        if (path && path !== '/' && path !== '/index.html') {
+          // This is a deep link like /cabinet/abc or /file/abc
+          // Redirect to hash-based URL: /#/cabinet/abc or /#/file/abc
+          var hash = '#' + path;
+          var search = window.location.search || '';
+          window.location.replace(
+            window.location.origin + '/' + hash + search
+          );
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

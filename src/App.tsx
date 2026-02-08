@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useAppContext } from './AppContext';
 import { Navbar } from './components/Navbar';
 import PublicDashboard from './pages/PublicDashboard';
@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 export function App() {
   return (
     <AppProvider>
-      <BrowserRouter>
+      <HashRouter>
         <div className="min-h-screen bg-slate-50 flex flex-col">
           <Navbar />
           <main className="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
@@ -39,7 +39,7 @@ export function App() {
             </Routes>
           </main>
         </div>
-      </BrowserRouter>
+      </HashRouter>
     </AppProvider>
   );
 }
