@@ -1,4 +1,4 @@
-import React from 'react';
+import {} from 'react';
 import { Link } from 'react-router-dom';
 import { Archive, FileText, QrCode } from 'lucide-react';
 import { useAppContext } from '../AppContext';

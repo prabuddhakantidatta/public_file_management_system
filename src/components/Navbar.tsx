@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, LayoutDashboard, Settings, UserCircle, QrCode, FileText, Archive } from 'lucide-react';
+import { LogOut, LayoutDashboard, UserCircle, QrCode, FileText, Archive } from 'lucide-react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { useAppContext } from '../AppContext';
