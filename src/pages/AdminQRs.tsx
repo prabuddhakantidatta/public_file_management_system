@@ -2,32 +2,30 @@ import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAppContext } from '../AppContext';
 import { Printer, CheckSquare, Square, Shield } from 'lucide-react';
-import { getFileUrl } from '../utils/urls';
 
 export default function AdminQRs() {
   const { files, documents, cabinets } = useAppContext();
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-
+  
   const [includeQR, setIncludeQR] = useState(true);
   const [includeDetails, setIncludeDetails] = useState(true);
   const [confidentialQrOnly, setConfidentialQrOnly] = useState(true);
 
   // Combine files and documents
   const allItems = [
-    ...files.map(f => ({ ...f, itemType: 'file' as const })),
+    ...files.map(f => ({ ...f, itemType: 'file' })),
     ...documents.map(d => ({
       ...d,
-      itemType: 'document' as const,
+      itemType: 'document',
       fileNumber: d.documentNumber,
       fileName: d.documentType || 'Document',
-      financialYear: '',
-      bdCollection: d.bdCollection || ''
+      financialYear: ''
     }))
   ];
 
-  const filteredFiles = allItems.filter(f =>
-    (f.fileNumber && f.fileNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
+  const filteredFiles = allItems.filter(f => 
+    (f.fileNumber && f.fileNumber.toLowerCase().includes(searchTerm.toLowerCase())) || 
     (f.fileName && f.fileName.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
@@ -81,7 +79,7 @@ export default function AdminQRs() {
               {selectedFiles.length === filteredFiles.length ? 'Deselect All' : 'Select All Filtered'}
             </button>
           </div>
-
+          
           <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-slate-100 text-sm font-medium text-slate-700">
             <span className="text-slate-500 mr-2">Print Options:</span>
             <label className="flex items-center cursor-pointer">
@@ -111,10 +109,7 @@ export default function AdminQRs() {
                 {file.isConfidential && <Shield className="w-4 h-4 text-red-500" />}
               </div>
               <h3 className="font-bold text-slate-900 line-clamp-1">{file.fileName}</h3>
-              <p className="text-xs text-slate-500 font-mono mt-1">{file.fileNumber}{file.financialYear ? `/${file.financialYear}` : ''}</p>
-              <p className="text-xs text-slate-400 mt-1">
-                {file.itemType === 'document' ? '📄 Document' : '📁 File'}
-              </p>
+              <p className="text-xs text-slate-500 font-mono mt-1">{file.fileNumber}/{file.financialYear}</p>
             </div>
           ))}
           {filteredFiles.length === 0 && (
@@ -125,24 +120,30 @@ export default function AdminQRs() {
         </div>
       </div>
 
-      {/* Print View */}
+      {/* Print View - Only visible when printing */}
       <div className="hidden print:block">
         <div className="print-grid">
           {selectedFiles.map(fileId => {
             const file = allItems.find(f => f.id === fileId);
             if (!file) return null;
+            
+            // Using /file/:id for scanning (FileView handles both files and documents)
+            const link = `${window.location.origin}/file/${file.id}`;
 
             const isConfidential = file.isConfidential === true || String(file.isConfidential) === 'true';
-
-            // Hash-based URL that always works
-            const link = getFileUrl(file.id);
-
-            // Build QR value with embedded text for non-confidential files
+            
             let qrValue = link;
             if (!isConfidential) {
               const cabName = getCabinetName(file.cabinetId);
               const loc = file.isLocker ? `Locker (L${file.level} C${file.column})` : `L${file.level} C${file.column}`;
-              qrValue = `Name: ${file.fileName || 'Document'}\nNo: ${file.fileNumber}${file.financialYear ? '/' + file.financialYear : ''}\nCabinet: ${cabName}\nLocation: ${loc}\n\n${link}`;
+              const params = new URLSearchParams({
+                name: file.fileName || 'Document',
+                num: `${file.fileNumber}${file.financialYear ? '/' + file.financialYear : ''}`,
+                cab: cabName,
+                loc: loc,
+                type: file.itemType || 'file'
+              });
+              qrValue = `${link}?${params.toString()}`;
             }
 
             const showQR = includeQR;
@@ -150,27 +151,29 @@ export default function AdminQRs() {
 
             return (
               <div key={file.id} className="qr-container flex items-start border border-gray-300 p-2 break-inside-avoid w-fit">
+                {/* Left side QR section */}
                 {showQR && (
                   <div style={{ width: '2cm', height: '2cm' }} className="flex-shrink-0 flex flex-col justify-center items-center bg-white">
                     <QRCodeSVG value={qrValue} size={65} level="M" includeMargin={false} />
                   </div>
                 )}
-
+                
+                {/* Right side info text next to QR */}
                 {showDetails && (
                   <div className={`${showQR ? 'ml-2' : ''} flex flex-col justify-center text-[8px] leading-tight w-[3.5cm] h-[2cm] overflow-hidden relative`}>
                     <div className="absolute top-0 right-0 text-[5px] text-gray-500">{new Date().toLocaleDateString()}</div>
                     <div className="font-bold truncate pr-6">{file.fileNumber}{file.financialYear ? `/${file.financialYear}` : ''}</div>
-                    <div className="truncate text-[7px]">{file.fileName}</div>
                     <div className="truncate text-[7px]">Cab: {getCabinetName(file.cabinetId)}</div>
                     {file.isLocker ? (
-                      <div className="truncate text-[7px]">Loc: Locker (L{file.level} C{file.column})</div>
+                       <div className="truncate text-[7px]">Loc: Locker (L{file.level} C{file.column})</div>
                     ) : (
-                      <div className="truncate text-[7px]">Loc: L{file.level} C{file.column}</div>
+                       <div className="truncate text-[7px]">Loc: L{file.level} C{file.column}</div>
                     )}
                     {isConfidential && <div className="font-bold text-black mt-0.5">CONFIDENTIAL</div>}
                   </div>
                 )}
 
+                {/* Removable identification tab for confidential files when details are hidden */}
                 {isConfidential && (
                   <div className="ml-4 pl-4 border-l-2 border-dashed border-gray-400 flex flex-col justify-center text-[9px] w-[5cm] h-[2cm] relative">
                     <div className="absolute top-0 right-0 text-[5px] text-gray-500">{new Date().toLocaleDateString()}</div>
