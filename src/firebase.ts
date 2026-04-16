@@ -3,13 +3,13 @@ import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBgZGQQHI9N-baEZoJDcFdcvpiQd_vZt4E",
-  authDomain: "cabinet-mapping-app.firebaseapp.com",
-  databaseURL: "https://cabinet-mapping-app-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "cabinet-mapping-app",
-  storageBucket: "cabinet-mapping-app.firebasestorage.app",
-  messagingSenderId: "173300160497",
-  appId: "1:173300160497:web:2fdae4a7ff524a65b79650"
+  apiKey: "AIzaSyAThe1_F61AYEZtXl6ISwNkd6D0XMSgg3k",
+  authDomain: "wbcs-progress-tracker-30fa6.firebaseapp.com",
+  databaseURL: "https://wbcs-progress-tracker-30fa6-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "wbcs-progress-tracker-30fa6",
+  storageBucket: "wbcs-progress-tracker-30fa6.firebasestorage.app",
+  messagingSenderId: "9259146",
+  appId: "1:9259146:web:8fc8523c6040658bf40573"
 };
 
 const app = initializeApp(firebaseConfig);
